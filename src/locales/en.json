@@ -1,6 +1,7 @@
 {
   "login_button": "Login",
   "signup_button": "Sign Up",
+  "logout_button": "Logout",
   "validation": {
     "name_min": "Name must be at least 4 characters",
     "name_required": "Full name is required",

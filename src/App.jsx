@@ -100,7 +100,7 @@ function App() {
                     )
                   }
                 />
-                <Route path="/chat" element={<ChatPage />} />
+                <Route path="/chat" element={ isAuthenticated ? <ChatPage /> : <Navigate to="/login" /> } />
 
                 <Route
                   path="/forgot-password"
