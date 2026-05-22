@@ -36,8 +36,8 @@ export default function MessageList({
         flex-1      
          px-4 pt-6
          space-y-4
-         pb-20
-      "
+         pb-15
+        "
     >
       {messages && messages.map((msg, i) => (
         <MessageBubble
