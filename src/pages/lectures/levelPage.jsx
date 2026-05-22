@@ -1,7 +1,6 @@
 // LevelPage.jsx
-import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useTranslation } from "react-i18next";
 const LevelPage = () => {
   const navigate = useNavigate();
 
@@ -43,9 +42,9 @@ const LevelPage = () => {
       navigate(`/level/${level.id}/lectures`);
     }
   };
-
+  const {t}= useTranslation();
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 pt-20">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full mx-auto">
         {levels.map((level) => (
           <div
@@ -70,7 +69,7 @@ const LevelPage = () => {
                 </p>
                 {level.hasCategory && (
                   <span className="inline-block mt-2 text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded">
-                    Choose your track →
+                     {t("levels.choose_department")} →
                   </span>
                 )}
               </div>
@@ -79,7 +78,7 @@ const LevelPage = () => {
                   onClick={() => handleViewDetails(level)}
                   className="text-sm md:text-base bg-blue-600 hover:bg-blue-700 px-4 md:px-6 py-2 md:py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
-                  {level.hasCategory ? "Choose Track →" : "Start Learning →"}
+                  {level.hasCategory ? t("levels.choose_department") : t("levels.start_learning")}
                 </button>
               </div>
             </div>

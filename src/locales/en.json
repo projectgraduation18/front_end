@@ -187,5 +187,23 @@
     "resending": "Resending code...",
 
     "back": "Back to sign in"
+  },
+   "level": "Level",
+  "chooseTrack": "Choose your specialization department",
+  "select": "Select",
+
+  "categories": {
+    "cs": {
+      "name": "Computer Science",
+      "description": "Focus on programming, algorithms, and software development"
+    },
+    "is": {
+      "name": "Information Systems",
+      "description": "Focus on databases, systems analysis, and IT management"
+    }
+  },
+  "levels":{
+    "choose_department":  "Choose your Department",
+    "start_learning": "Start Learning"
   }
 }

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -21,35 +22,38 @@ export default function ChatPage() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
 
-  // update welcome message only when language changes
+  /* =========================
+     WELCOME UPDATE
+  ========================= */
   useEffect(() => {
     setMessages((prev) =>
-      prev.map((msg) =>
-        msg.isWelcome
-          ? {
-              ...msg,
-              text: t("chat.welcome"),
-            }
-          : msg
+      prev.map((m) =>
+        m.isWelcome
+          ? { ...m, text: t("chat.welcome") }
+          : m
       )
     );
   }, [i18n.language, t]);
 
+  /* =========================
+     SAFE STREAM CLEANER
+  ========================= */
+  const cleanChunk = (str = "") =>
+    str
+      .replace(/\|/g, " ")
+      .replace(/\[DONE\]/g, "")
+      .replace(/\[object Object\]/g, "")
+      .replace(/\s+/g, " ");
+
+  /* =========================
+     STREAM MESSAGE
+  ========================= */
   const sendMessage = async (text) => {
     setLoading(true);
 
-    // add empty ai message
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "ai",
-        text: "",
-      },
-    ]);
-
     try {
       const res = await fetch(
-        "https://ziad9022-fci-ai-assistant.hf.space/api/chat",
+        "https://grad90-unilms-ai-engine.hf.space/api/chat/stream",
         {
           method: "POST",
           headers: {
@@ -57,56 +61,84 @@ export default function ChatPage() {
           },
           body: JSON.stringify({
             message: text,
+            course_id: "regulations",
+            history: [],
           }),
         }
       );
 
-      const data = await res.json();
+      if (!res.ok || !res.body)
+        throw new Error(`HTTP ${res.status}`);
 
-      const fullText =
-        data?.response || t("chat.noReply");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
 
-      let i = 0;
+      let buffer = "";
+      let fullText = "";
+      let created = false;
 
-      const interval = setInterval(() => {
-        const chunk = fullText.slice(i, i + 4);
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
 
-        i += 4;
-
-        setMessages((prev) => {
-          const updated = [...prev];
-
-          const lastIndex = updated.length - 1;
-
-          updated[lastIndex] = {
-            role: "ai",
-            text:
-              (updated[lastIndex]?.text || "") +
-              chunk,
-          };
-
-          return updated;
+        buffer += decoder.decode(value, {
+          stream: true,
         });
 
-        if (i >= fullText.length) {
-          clearInterval(interval);
-        }
-      }, 15);
-    } catch (error) {
-      console.error(error);
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
 
-      setMessages((prev) => [
-        ...prev,
-        {
+        for (const line of lines) {
+          const trimmed = line.trim();
+
+          if (!trimmed.startsWith("data:")) continue;
+
+          const data = trimmed.replace(/^data:\s*/, "");
+
+          if (!data || data === "[DONE]") continue;
+
+          fullText += cleanChunk(data);
+
+          if (!created) {
+            created = true;
+
+            setMessages((prev) => [
+              ...prev,
+              { role: "ai", text: fullText },
+            ]);
+          } else {
+            setMessages((prev) => {
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                role: "ai",
+                text: fullText,
+              };
+              return updated;
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err);
+
+      setMessages((prev) => {
+        const updated = [...prev];
+
+        updated[updated.length - 1] = {
           role: "ai",
-          text: t("chat.connectionError"),
-        },
-      ]);
+          text: "حدث خطأ في الاتصال بالسيرفر",
+        };
+
+        return updated;
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  /* =========================
+     SEND
+  ========================= */
   const handleSend = async () => {
     if (loading) return;
 
@@ -121,34 +153,24 @@ export default function ChatPage() {
     setEditValue("");
     setEditingIndex(null);
 
-    // add user message
     setMessages((prev) => [
       ...prev,
-      {
-        role: "user",
-        text,
-      },
+      { role: "user", text },
     ]);
 
     await sendMessage(text);
   };
 
-  const handleEdit = (index) => {
-    setEditingIndex(index);
-
-    setEditValue(messages[index].text);
+  const handleEdit = (i) => {
+    setEditingIndex(i);
+    setEditValue(messages[i].text);
   };
 
   return (
-    <div
-      className="
-        h-screen  
-        pt-16 md:px-16
-        flex flex-col
-        bg-background text-foreground
-        transition-colors
-      "
-    >
+    <div className="
+      h-screen pt-16 md:px-16 flex flex-col
+      bg-background text-foreground min-h-screen
+    ">
       <MessageList
         messages={messages}
         loading={loading}
