@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "./components/ui/tooltip";
@@ -14,9 +14,12 @@ import VerificationCode from "./pages/verification-code";
 import LevelPage from "./pages/lectures/levelPage";
 import Category from "./pages/lectures/category";
 import LecturesPage from "./pages/lectures/lecturesPage";
+import { useSelector } from "react-redux";
+import UnauthorizedPage from "./pages/unauthorized";
 const queryClient = new QueryClient();
 
 function App() {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageDirection>
@@ -26,28 +29,85 @@ function App() {
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<HomePage />} />
 
-                <Route path="/level" element={<LevelPage />} />
+                <Route
+                  path="/level"
+                  element={
+                    user?.role === "Student" ? (
+                      <LevelPage />
+                    ) : (
+                      <Navigate
+                        to={!isAuthenticated ? "/login" : "/unauthorized"}
+                      />
+                    )
+                  }
+                />
                 <Route
                   path="/level/:levelId/lectures"
-                  element={<LecturesPage />}
+                  element={
+                    user?.role === "Student" ? (
+                      <LecturesPage />
+                    ) : (
+                      <Navigate
+                        to={!isAuthenticated ? "/login" : "/unauthorized"}
+                      />
+                    )
+                  }
                 />
-                <Route path="/level/:levelId/category" element={<Category />} />
+                <Route
+                  path="/level/:levelId/category"
+                  element={
+                    user?.role === "Student" ? (
+                      <Category />
+                    ) : (
+                      <Navigate
+                        to={!isAuthenticated ? "/login" : "/unauthorized"}
+                      />
+                    )
+                  }
+                />
                 <Route
                   path="/level/:levelId/category/:categoryId/lectures"
-                  element={<LecturesPage />}
+                  element={
+                    user?.role === "Student" ? (
+                      <LecturesPage />
+                    ) : (
+                      <Navigate
+                        to={!isAuthenticated ? "/login" : "/unauthorized"}
+                      />
+                    )
+                  }
                 />
 
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-                <Route path="/chat" element={<ChatPage />} />
+                <Route
+                  path="/login"
+                  element={
+                    !isAuthenticated ? <LoginPage /> : <Navigate to="/" />
+                  }
+                />
+                <Route
+                  path="/signup"
+                  element={
+                    !isAuthenticated ? <SignupPage /> : <Navigate to="/" />
+                  }
+                />
                 <Route
                   path="/verification-code"
-                  element={<VerificationCode />}
+                  element={
+                    !isAuthenticated ? (
+                      <VerificationCode />
+                    ) : (
+                      <Navigate to="/" />
+                    )
+                  }
                 />
+                <Route path="/chat" element={<ChatPage />} />
+
                 <Route
                   path="/forgot-password"
                   element={<ForgotPasswordPage />}
                 />
+
+                <Route path="/unauthorized" element={<UnauthorizedPage />} />
               </Route>
             </Routes>
           </BrowserRouter>
