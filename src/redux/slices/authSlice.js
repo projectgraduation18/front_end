@@ -1,3 +1,5 @@
+
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../services/authService";
 import Cookies from "js-cookie";
@@ -41,7 +43,7 @@ const initialState = {
   user: null,
   token: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   isError: false,
   isSuccess: false,
   message: "",
@@ -71,6 +73,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.isSuccess = true;
       }
+      state.isLoading = false;
     },
     logout: (state) => {
       state.user = null;

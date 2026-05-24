@@ -10,28 +10,56 @@ import ChatInput from "../components/chat/ChatInput";
 export default function ChatPage() {
   const { t, i18n } = useTranslation();
 
-  const [messages, setMessages] = useState([
-    {
-      role: "ai",
-      isWelcome: true,
-      text: t("chat.welcome"),
-    },
-  ]);
+  /* =========================
+     MESSAGES
+  ========================= */
+  const [messages, setMessages] = useState(() => {
+    const savedMessages =
+      sessionStorage.getItem("chat_messages");
+
+    if (savedMessages) {
+      return JSON.parse(savedMessages);
+    }
+
+    return [
+      {
+        role: "ai",
+        isWelcome: true,
+        text: t("chat.welcome"),
+      },
+    ];
+  });
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [editValue, setEditValue] = useState("");
+  const [editingIndex, setEditingIndex] =
+    useState(null);
+
+  const [editValue, setEditValue] =
+    useState("");
 
   /* =========================
-     WELCOME UPDATE
+     SAVE MESSAGES
+  ========================= */
+  useEffect(() => {
+    sessionStorage.setItem(
+      "chat_messages",
+      JSON.stringify(messages)
+    );
+  }, [messages]);
+
+  /* =========================
+     UPDATE WELCOME
   ========================= */
   useEffect(() => {
     setMessages((prev) =>
       prev.map((m) =>
         m.isWelcome
-          ? { ...m, text: t("chat.welcome") }
+          ? {
+              ...m,
+              text: t("chat.welcome"),
+            }
           : m
       )
     );
@@ -52,7 +80,11 @@ export default function ChatPage() {
       },
     ]);
 
-    for (let i = 0; i < fullText.length; i++) {
+    for (
+      let i = 0;
+      i < fullText.length;
+      i++
+    ) {
       currentText += fullText[i];
 
       setMessages((prev) => {
@@ -66,7 +98,6 @@ export default function ChatPage() {
         return updated;
       });
 
-      // سرعة الكتابة
       await new Promise((resolve) =>
         setTimeout(resolve, 8)
       );
@@ -76,41 +107,67 @@ export default function ChatPage() {
   /* =========================
      SEND MESSAGE
   ========================= */
-  const sendMessage = async (text) => {
+  const sendMessage = async (
+    text,
+    currentMessages
+  ) => {
     setLoading(true);
 
     try {
+      // تحويل الرسائل للشكل المطلوب
+      const history = currentMessages
+        .filter((msg) => !msg.isWelcome)
+        .map((msg) => ({
+          role:
+            msg.role === "ai"
+              ? "assistant"
+              : "user",
+
+          content: msg.text,
+        }));
+
+      console.log("History:", history);
+
       const res = await fetch(
         "https://grad90-unilms-ai-engine.hf.space/api/chat",
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
+
           body: JSON.stringify({
             message: text,
             course_id: "regulations",
-            history: [],
+            history: history,
           }),
         }
       );
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        throw new Error(
+          `HTTP ${res.status}`
+        );
       }
 
       const data = await res.json();
 
-      /*
-        عدل حسب شكل الريسبونس عندك
-      */
+      console.log(
+        "AI Response:",
+        data
+      );
+
       const aiText =
         data.reply ||
         data.response ||
         data.message ||
+        data.answer ||
         "لا يوجد رد";
 
       await typeMessage(aiText);
+
     } catch (err) {
       console.error(err);
 
@@ -118,16 +175,18 @@ export default function ChatPage() {
         ...prev,
         {
           role: "ai",
-          text: "حدث خطأ في الاتصال بالسيرفر",
+          text:
+            "حدث خطأ في الاتصال بالسيرفر",
         },
       ]);
+
     } finally {
       setLoading(false);
     }
   };
 
   /* =========================
-     SEND
+     HANDLE SEND
   ========================= */
   const handleSend = async () => {
     if (loading) return;
@@ -139,16 +198,27 @@ export default function ChatPage() {
 
     if (!text.trim()) return;
 
+    const updatedMessages = [
+      ...messages,
+      {
+        role: "user",
+        text,
+      },
+    ];
+
+    // تحديث الرسائل
+    setMessages(updatedMessages);
+
+    // تفريغ الإدخال
     setInput("");
     setEditValue("");
     setEditingIndex(null);
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", text },
-    ]);
-
-    await sendMessage(text);
+    // إرسال الرسالة
+    await sendMessage(
+      text,
+      updatedMessages
+    );
   };
 
   /* =========================
@@ -163,7 +233,7 @@ export default function ChatPage() {
     <div
       className="
         h-screen pt-16 md:px-16 flex flex-col
-        bg-background text-foreground min-h-screen
+        bg-background text-foreground
       "
     >
       <MessageList
@@ -216,7 +286,10 @@ export default function ChatPage() {
                 </li>
               ),
 
-              code: ({ inline, children }) =>
+              code: ({
+                inline,
+                children,
+              }) =>
                 inline ? (
                   <code className="bg-muted px-1 py-0.5 rounded text-sm">
                     {children}
@@ -274,7 +347,10 @@ export default function ChatPage() {
                   {children}
                 </td>
               ),
-              blockquote: ({ children }) => (
+
+              blockquote: ({
+                children,
+              }) => (
                 <blockquote className="border-l-4 border-primary pl-4 italic my-4">
                   {children}
                 </blockquote>
