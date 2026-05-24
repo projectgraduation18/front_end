@@ -6,7 +6,7 @@ import { useDarkMode } from "@/hooks/use-dark-mode";
 import { motion, AnimatePresence } from "framer-motion";
 import LanguageDropdown from "./language-dropdown";
 import { useTranslation } from "react-i18next";
-import { logoutUser, resetAuthState } from "../Redux/slices/authSlice";
+import { logoutUser, resetAuthState } from "../redux/slices/authSlice";
 
 export default function Navbar() {
   const { isDark, toggle } = useDarkMode();
