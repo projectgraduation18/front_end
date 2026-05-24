@@ -41,7 +41,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<MainLayout />}>
                   <Route index element={<HomePage />} />
-                  <Route path="/chat" element={<ChatPage />} />
+                  <Route path="/chat" element={ isAuthenticated ? <ChatPage /> : <Navigate to="/login" /> } />
                   <Route
                     path="/forgot-password"
                     element={<ForgotPasswordPage />}

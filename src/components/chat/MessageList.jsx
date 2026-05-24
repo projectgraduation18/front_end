@@ -36,7 +36,7 @@ export default function MessageList({
         flex-1      
          px-4 pt-6
          space-y-4
-         pb-15
+         pb-25
         "
     >
       {messages && messages.map((msg, i) => (

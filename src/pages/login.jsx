@@ -148,7 +148,7 @@ export default function LoginPage() {
                 {formik.isSubmitting || isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />{" "}
-                    {t("login.signing_in") || "جاري الدخول..."}
+                    {t("loginIng")}
                   </>
                 ) : (
                   <>
