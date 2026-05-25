@@ -97,8 +97,7 @@ const LecturesPage = () => {
               </h1>
 
               <p className="text-gray-600 dark:text-gray-300">
-                📚 {stats.totalLectures} lectures • ⏱️ Total duration:{" "}
-                {stats.totalDuration}
+                📚 {stats.totalLectures} subjects
               </p>
 
               {data.hasCategory && (
@@ -152,16 +151,19 @@ const SubjectCard = ({
   isExpanded,
   onToggle,
 }) => {
-  const totalDuration = subject.lectures.reduce((total, lecture) => {
-    const [minutes] = lecture.duration.split(":").map(Number);
-    return total + minutes;
-  }, 0);
 
-  const hours = Math.floor(totalDuration / 60);
-  const minutes = totalDuration % 60;
 
-  const durationText =
-    hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  
+  // const totalDuration = subject.lectures.reduce((total, lecture) => {
+  //   const [minutes] = lecture.duration.split(":").map(Number);
+  //   return total + minutes;
+  // }, 0);
+
+  // const hours = Math.floor(totalDuration / 60);
+  // const minutes = totalDuration % 60;
+
+  // const durationText =
+  //   hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition border dark:border-gray-800">
@@ -194,7 +196,7 @@ const SubjectCard = ({
 
               <div className="flex gap-4 mt-2 ml-10 text-sm text-gray-500 dark:text-gray-400">
                 <span>📹 {subject.lectures.length} lectures</span>
-                <span>⏱️ {durationText}</span>
+                
               </div>
 
             </div>
@@ -250,17 +252,26 @@ const LectureCard = ({ lecture, lectureIndex }) => {
             </h4>
           </div>
 
-          <div className="text-gray-500 dark:text-gray-400 text-sm mt-1 ml-7">
+          {/* <div className="text-gray-500 dark:text-gray-400 text-sm mt-1 ml-7">
             ⏱️ {lecture.duration}
-          </div>
+          </div> */}
 
         </div>
 
-        <button
+        {/* <button
           onClick={() => setIsPlaying(!isPlaying)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition text-sm"
         >
           {isPlaying ? "Pause" : "Watch"}
+        </button> */}
+        {/* <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition text-sm">
+          View Lecture File
+        </button> */}
+        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition text-sm">
+          Download Lecture File
+        </button>
+        <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition text-sm">
+          Summary & Questions
         </button>
 
       </div>

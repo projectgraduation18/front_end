@@ -228,12 +228,12 @@
 //     },
 //   },
 // };
-
+ 
 // utils/lecturesData.js
 export const lecturesData = {
   // Level 1 - ملهوش category (مواد عامة)
   1: {
-    title: "Level 1: Introduction to Computer Science",
+    title: "Level 1",
     subjects: [
       {
         id: 1,
@@ -312,7 +312,7 @@ export const lecturesData = {
 
   // Level 2 - ملهوش category (مواد عامة)
   2: {
-    title: "Level 2: Data Structures and Algorithms",
+    title: "Level 2",
     subjects: [
       {
         id: 1,
@@ -379,10 +379,10 @@ export const lecturesData = {
 
   // Level 3 - CS Track
   3: {
-    title: "Level 3: Software Development",
+    title: "Level 3",
     categories: {
       cs: {
-        name: "Computer Science Track",
+        name: "Computer Science Department",
         subjects: [
           {
             id: 1,
@@ -459,7 +459,7 @@ export const lecturesData = {
         ],
       },
       is: {
-        name: "Information Systems Track",
+        name: "Information Systems Department",
         subjects: [
           {
             id: 1,
@@ -534,10 +534,10 @@ export const lecturesData = {
 
   // Level 4 - CS Track
   4: {
-    title: "Level 4: Advanced Computer Science",
+    title: "Level 4",
     categories: {
       cs: {
-        name: "Advanced CS Track",
+        name: "Advanced CS Department",
         subjects: [
           {
             id: 1,
@@ -608,7 +608,7 @@ export const lecturesData = {
         ],
       },
       is: {
-        name: "Advanced IS Track",
+        name: "Information Systems Department",
         subjects: [
           {
             id: 1,

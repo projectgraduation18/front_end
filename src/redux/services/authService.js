@@ -2,7 +2,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_URL = "http://projectgraduation18.runasp.net/api/";
+const API_URL = "https://projectgraduation18.runasp.net/api/";
 
 const COOKIE_OPTIONS = {
   expires: 7,
