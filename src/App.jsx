@@ -22,7 +22,7 @@ import SubjectsPage from "./pages/Student/subjectsPage";
 import UnauthorizedPage from "./pages/unauthorized";
 
 import AdminLayout from "./components/layout/AdminLayout";
-import Dashboard from "./pages/Admin/Dashboard";
+import Dashboard from "./pages/Admin/dashboard";
 import Students from "./pages/Admin/Students";
 import Levels from "./pages/Admin/Levels";
 import DepartmentDetails from "./pages/Admin/DepartmentDetails";
