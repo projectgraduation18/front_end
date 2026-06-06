@@ -1,4 +1,3 @@
-// src/pages/LoginPage.jsx
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
@@ -9,38 +8,47 @@ import FormInput from "@/components/FormInput";
 import { motion } from "framer-motion";
 import { fadeUp } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import {
-  loginUser,
-  resetAuthState,
-  clearError,
-} from "../redux/slices/authSlice";
+
+import { loginUser, clearError } from "../redux/slices/authSlice";
 
 export default function LoginPage() {
   const [showSuccess, setShowSuccess] = useState(false);
+
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isLoading, isError, isSuccess, message, user } = useSelector(
-    (state) => state.auth,
-  );
+  const {
+    isLoading,
+    isError,
+    message,
+    user,
+    isAuthenticated,
+    authInitialized,
+  } = useSelector((state) => state.auth);
 
+  /* ================= LOGIN SUCCESS HANDLER ================= */
   useEffect(() => {
-    if (isSuccess && user) {
+    if (!authInitialized) return;
+
+    if (isAuthenticated && user) {
       setShowSuccess(true);
+
       const timer = setTimeout(() => {
-        navigate("/");
-      }, 2000);
+        const role = user?.role?.toLowerCase();
+
+        if (role === "admin") {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/student", { replace: true });
+        }
+      }, 1000);
+
       return () => clearTimeout(timer);
     }
-  }, [isSuccess, user, navigate]);
+  }, [isAuthenticated, user, authInitialized, navigate]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(resetAuthState());
-    };
-  }, [dispatch]);
-
+  /* ================= VALIDATION ================= */
   const validationSchema = Yup.object({
     email: Yup.string()
       .email(t("validation.invalid_email"))
@@ -50,83 +58,97 @@ export default function LoginPage() {
       .required(t("validation.password_required")),
   });
 
+  /* ================= FORMIK ================= */
   const formik = useFormik({
-    initialValues: { email: "", password: "" },
+    initialValues: {
+      email: "",
+      password: "",
+    },
     validationSchema,
+
     onSubmit: async (values, { setSubmitting }) => {
       dispatch(clearError());
+
       const result = await dispatch(loginUser(values));
+
       setSubmitting(false);
 
       if (result.meta.requestStatus === "rejected") {
-        console.error("Login failed:", result.payload);
+        console.log("Login failed:", result.payload);
       }
     },
   });
 
+  /* ================= UI ================= */
   return (
     <motion.div
       {...fadeUp(0)}
-      className="h-[100vh] flex items-center justify-center px-4 py-12 bg-background"
+      className="h-screen flex items-center justify-center px-4 bg-background"
     >
       <div className="w-full max-w-md">
-        <div className="mb-3 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary mb-2 shadow-lg shadow-primary/30">
+
+        {/* HEADER */}
+        <div className="text-center mb-4">
+          <div className="w-12 h-12 mx-auto flex items-center justify-center bg-primary rounded-xl shadow-lg shadow-primary/30">
             <LogIn className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+
+          <h1 className="text-2xl font-bold mt-2">
             {t("login.title")}
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+
+          <p className="text-sm text-muted-foreground">
             {t("login.subtitle")}
           </p>
         </div>
 
-        <div className="bg-card rounded-2xl border border-border shadow-sm p-8">
+        {/* CARD */}
+        <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
+
+          {/* SUCCESS STATE */}
           {showSuccess ? (
-            <div className="text-center py-4">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+            <div className="text-center py-6">
+              <div className="w-12 h-12 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-3">
                 <LogIn className="w-6 h-6 text-green-600" />
               </div>
-              <h2 className="text-lg font-semibold text-foreground">
-                {t("login.success_title") || "تم تسجيل الدخول بنجاح"}
+
+              <h2 className="font-semibold text-lg">
+                {t("login.success_title") || "Login successful"}
               </h2>
+
               <p className="text-sm text-muted-foreground mt-1">
-                {t("login.success_message") || "جاري تحويلك إلى لوحة التحكم..."}
+                {t("login.success_message") || "Redirecting..."}
               </p>
             </div>
           ) : (
-            <form
-              onSubmit={formik.handleSubmit}
-              noValidate
-              className="space-y-5"
-            >
-              {/* عرض رسالة الخطأ */}
+            <form onSubmit={formik.handleSubmit} className="space-y-5">
+
+              {/* ERROR */}
               {isError && message && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg">
                   {message}
                 </div>
               )}
 
+              {/* EMAIL */}
               <FormInput
                 id="email"
                 label={t("login.email_label")}
                 type="email"
                 placeholder="you@example.com"
                 autoComplete="email"
-                required
                 error={formik.errors.email}
                 touched={formik.touched.email}
                 {...formik.getFieldProps("email")}
               />
 
+              {/* PASSWORD */}
               <FormInput
                 id="password"
                 label={t("login.password_label")}
                 type="password"
                 placeholder="••••••••"
                 autoComplete="current-password"
-                required
                 error={formik.errors.password}
                 touched={formik.touched.password}
                 rightLabel={
@@ -140,19 +162,21 @@ export default function LoginPage() {
                 {...formik.getFieldProps("password")}
               />
 
+              {/* BUTTON */}
               <button
                 type="submit"
                 disabled={formik.isSubmitting || isLoading}
-                className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm py-2.5 px-4 transition-all duration-150 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-sm shadow-primary/20"
+                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 rounded-lg font-medium disabled:opacity-60"
               >
                 {formik.isSubmitting || isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />{" "}
-                    {t("loginIng")}
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t("login.loading") || "Loading..."}
                   </>
                 ) : (
                   <>
-                    <LogIn className="w-4 h-4" /> {t("login.submit_button")}
+                    <LogIn className="w-4 h-4" />
+                    {t("login.submit_button")}
                   </>
                 )}
               </button>
@@ -160,12 +184,10 @@ export default function LoginPage() {
           )}
         </div>
 
+        {/* FOOTER */}
         <p className="text-center text-sm text-muted-foreground mt-6">
           {t("login.signup_prompt")}{" "}
-          <Link
-            to="/signup"
-            className="text-primary font-medium hover:underline"
-          >
+          <Link to="/signup" className="text-primary hover:underline">
             {t("login.signup_link")}
           </Link>
         </p>

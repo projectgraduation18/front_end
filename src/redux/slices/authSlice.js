@@ -1,94 +1,160 @@
-
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../services/authService";
-import Cookies from "js-cookie";
+
+/* ================= THUNKS ================= */
 
 export const loginUser = createAsyncThunk(
-  "auth/login",
+  "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
-    const result = await authService.login(email, password);
-
-    if (result.success) {
-      return result.data;
-    } else {
-      return rejectWithValue(result.message);
-    }
-  },
+    const res = await authService.login(email, password);
+    if (!res.success) return rejectWithValue(res.message);
+    return res.data;
+  }
 );
 
 export const registerUser = createAsyncThunk(
-  "auth/register",
-  async ({ name, email, password }, { rejectWithValue }) => {
-    const result = await authService.register(name, email, password);
+  "auth/registerUser",
+  async (payload, { rejectWithValue }) => {
+    const res = await authService.register(
+      payload.name,
+      payload.email,
+      payload.password
+    );
 
-    if (result.success) {
-      return result.data;
-    } else {
-      return rejectWithValue(result.message);
-    }
-  },
+    if (!res.success) return rejectWithValue(res.message);
+    return res.data;
+  }
 );
 
-export const logoutUser = createAsyncThunk("auth/logout", async () => {
-  await authService.logout();
-  return {};
-});
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async () => {
+    await authService.logout();
+    return true;
+  }
+);
 
-export const checkAuthStatus = createAsyncThunk("auth/check", async () => {
-  return authService.checkAuth();
-});
+export const restoreSession = createAsyncThunk(
+  "auth/restoreSession",
+  async () => {
+    return authService.getSession();
+  }
+);
+
+export const checkAuth = createAsyncThunk(
+  "auth/checkAuth",
+  async () => {
+    return authService.getSession();
+  }
+);
+
+/* ================= PASSWORD ================= */
+
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    try {
+      const res = await authService.forgotPassword(email);
+      return res.message;
+    } catch {
+      return rejectWithValue("Failed to send reset email");
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ email, otpCode, newPassword }, { rejectWithValue }) => {
+    try {
+      const res = await authService.resetPassword(
+        email,
+        otpCode,
+        newPassword
+      );
+
+      if (!res.success) {
+        return rejectWithValue(res.message);
+      }
+
+      return res; // 👈 مهم
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to reset password"
+      );
+    }
+  }
+);
+
+/* ================= STATE ================= */
 
 const initialState = {
   user: null,
   token: null,
   isAuthenticated: false,
-  isLoading: true,
+
+  isLoading: false,
   isError: false,
-  isSuccess: false,
   message: "",
+
+  authInitialized: false,
+
+  passwordLoading: false,
+  passwordSuccess: false,
+  passwordMessage: "",
 };
+
+/* ================= SLICE ================= */
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
+
   reducers: {
-    resetAuthState: (state) => {
-      state.isLoading = false;
-      state.isError = false;
-      state.isSuccess = false;
-      state.message = "";
-    },
     clearError: (state) => {
       state.isError = false;
       state.message = "";
     },
-    restoreSession: (state) => {
-      const token = Cookies.get("token");
-      const user = Cookies.get("user");
 
-      if (token && user) {
-        state.token = token;
-        state.user = JSON.parse(user);
-        state.isAuthenticated = true;
-        state.isSuccess = true;
-      }
-      state.isLoading = false;
-    },
-    logout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-      state.isSuccess = false;
-      state.isError = false;
-      state.message = "";
-      Cookies.remove("token", { path: "/" });
-      Cookies.remove("user", { path: "/" });
+    clearPasswordState: (state) => {
+      state.passwordLoading = false;
+      state.passwordSuccess = false;
+      state.passwordMessage = "";
     },
   },
+
   extraReducers: (builder) => {
     builder
-      // ========== Login Cases ==========
+
+      /* ================= SESSION ================= */
+      .addCase(restoreSession.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.user = action.payload.user;
+          state.token = action.payload.token;
+          state.isAuthenticated = true;
+        } else {
+          state.user = null;
+          state.token = null;
+          state.isAuthenticated = false;
+        }
+
+        state.authInitialized = true;
+      })
+
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.user = action.payload.user;
+          state.token = action.payload.token;
+          state.isAuthenticated = true;
+        } else {
+          state.user = null;
+          state.token = null;
+          state.isAuthenticated = false;
+        }
+
+        state.authInitialized = true;
+      })
+
+      /* ================= LOGIN ================= */
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
@@ -96,56 +162,78 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isSuccess = true;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.message = "";
+        state.authInitialized = true;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.isAuthenticated = false;
-        state.user = null;
-        state.token = null;
         state.message = action.payload;
       })
 
-      // ========== Register Cases ==========
+      /* ================= REGISTER ================= */
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
-        state.message = "";
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isSuccess = true;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.message = "";
+        state.authInitialized = true;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.isAuthenticated = false;
-        state.user = null;
-        state.token = null;
         state.message = action.payload;
       })
 
-      // ========== Logout Cases ==========
+      /* ================= LOGOUT ================= */
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
-        state.isSuccess = false;
-        state.isError = false;
-        state.message = "";
+        state.authInitialized = true;
+      })
+
+      /* ================= FORGOT PASSWORD ================= */
+      .addCase(forgotPassword.pending, (state) => {
+        state.passwordLoading = true;
+        state.passwordSuccess = false;
+        state.passwordMessage = "";
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+  state.passwordLoading = false;
+  state.passwordSuccess = true;
+  state.passwordMessage = action.payload?.message;
+})
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.passwordLoading = false;
+        state.passwordSuccess = false;
+        state.passwordMessage = action.payload;
+      })
+
+      /* ================= RESET PASSWORD ================= */
+      .addCase(resetPassword.pending, (state) => {
+        state.passwordLoading = true;
+        state.passwordSuccess = false;
+        state.passwordMessage = "";
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+  state.passwordLoading = false;
+  state.passwordSuccess = true;
+  state.passwordMessage = action.payload?.message; // 👈 هنا الحل
+})
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.passwordLoading = false;
+        state.passwordSuccess = false;
+        state.passwordMessage = action.payload;
       });
   },
 });
 
-export const { resetAuthState, clearError, restoreSession, logout } =
-  authSlice.actions;
+export const { clearError, clearPasswordState } = authSlice.actions;
 export default authSlice.reducer;

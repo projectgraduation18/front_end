@@ -47,7 +47,8 @@
     "submit_button": "Login",
     "signup_prompt": "Don't have an account? ",
     "signup_link": "Create one",
-    "forget_password": "Forgot password?"
+    "forget_password": "Forgot password?",
+    "loading": "Logging in..."
   },
   "hero": {
     "badge": "Academic Assistant Platform",
@@ -194,7 +195,7 @@
   "chooseTrack": "Choose your specialization department",
   "select": "Select",
 
-  "categories": {
+  "departments": {
     "cs": {
       "name": "Computer Science",
       "description": "Focus on programming, algorithms, and software development"
@@ -202,10 +203,33 @@
     "is": {
       "name": "Information Systems",
       "description": "Focus on databases, systems analysis, and IT management"
+    },
+      "it": {
+      "name": "Information Technology",
+      "description": "Study networks, infrastructure, cloud computing and system administration."
     }
   },
   "levels":{
     "choose_department":  "Choose your Department",
-    "start_learning": "Start Learning"
-  }
+    "start_learning": "Start Learning",
+    "view_details": "View Details",
+    "level_1_description": "This level covers the basics of computer science and lays the foundation for all future studies.",
+    "level_2_description": "This level builds on the fundamentals, introducing core programming concepts and mathematics.",
+    "level_3_description": "This level focuses on software development and allows students to choose their specialization department.",
+    "level_4_description": "This level covers advanced topics and prepares students for graduation projects and the professional world."
+
+  },
+  "subjects": "Subjects",
+    "admin": {
+    "title": "Admin",
+    "theme": "Theme",
+    "language": "Language",
+    "home": "Home",
+    "students": "Students",
+    "levels": "Levels",
+    "logout": "Logout"
+  },
+  "upload_file":"upload_file"
+   
+
 }

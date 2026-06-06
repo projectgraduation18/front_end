@@ -2,28 +2,34 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-const Category = () => {
+const Department = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const categories = [
+  const departments = [
     {
       id: "cs",
-      nameKey: "categories.cs.name",
-      descKey: "categories.cs.description",
+      nameKey: "departments.cs.name",
+      descKey: "departments.cs.description",
       icon: "💻",
     },
     {
       id: "is",
-      nameKey: "categories.is.name",
-      descKey: "categories.is.description",
+      nameKey: "departments.is.name",
+      descKey: "departments.is.description",
       icon: "📊",
+    },
+     {
+      id: "it",
+      nameKey: "departments.it.name",
+      descKey: "departments.it.description",
+      icon: "🌐",
     },
   ];
 
-  const handleCategorySelect = (category) => {
-    navigate(`/level/${levelId}/category/${category.id}/lectures`);
+  const handleDepartmentSelect = (department) => {
+    navigate(`/level/${levelId}/department/${department.id}/subjects`);
   };
 
   return (
@@ -39,24 +45,24 @@ const Category = () => {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {categories.map((category) => (
+          {departments.map((department) => (
             <div
-              key={category.id}
-              onClick={() => handleCategorySelect(category)}
+              key={department.id}
+              onClick={() => handleDepartmentSelect(department)}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
-              <div className="text-6xl mb-4">{category.icon}</div>
+              <div className="text-6xl mb-4">{department.icon}</div>
 
               <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-                {t(category.nameKey)}
+                {t(department.nameKey)}
               </h2>
 
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                {t(category.descKey)}
+                {t(department.descKey)}
               </p>
 
               <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                {t("select")} → {t(category.nameKey)}
+                {t("select")} → {t(department.nameKey)}
               </button>
             </div>
           ))}
@@ -66,4 +72,4 @@ const Category = () => {
   );
 };
 
-export default Category;
+export default Department;

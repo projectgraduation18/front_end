@@ -6,7 +6,7 @@ import { useDarkMode } from "@/hooks/use-dark-mode";
 import { motion, AnimatePresence } from "framer-motion";
 import LanguageDropdown from "./language-dropdown";
 import { useTranslation } from "react-i18next";
-import { logoutUser, resetAuthState } from "../redux/slices/authSlice";
+import { logoutUser } from "../redux/slices/authSlice";
 
 export default function Navbar() {
   const { isDark, toggle } = useDarkMode();
@@ -23,10 +23,8 @@ export default function Navbar() {
   );
 
   const navLinks = [
-    { label: t("nav.home"), type: "scroll", id: "hero" },
+    { label: t("nav.home"), type: "route",  path:"/student"},
     { label: t("nav.level"), type: "route", id: "level", path: "level" },
-    { label: t("nav.features"), type: "scroll", id: "features" },
-    { label: t("nav.about"), type: "scroll", id: "about" },
     { label: t("nav.chat_ai"), type: "route", path: "/chat" },
   ];
 
@@ -53,7 +51,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
-    dispatch(resetAuthState());
+    // dispatch(resetAuthState());
     navigate("/");
     setMenuOpen(false);
   };

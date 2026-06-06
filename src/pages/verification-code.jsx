@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   ShieldCheck,
@@ -9,28 +10,32 @@ import {
   Mail,
 } from "lucide-react";
 
+import { forgotPassword } from "../redux/slices/authSlice";
+
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "../components/ui/input-otp";
+import { useIsArabic } from "../lib/utils";
 
 export default function VerificationCode() {
   const { t, i18n } = useTranslation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const location = useLocation();
-
-  const email =
-    location.state?.email || "example@email.com";
+  const email = location.state?.email || "";
 
   const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
+  const { passwordLoading, passwordMessage } = useSelector(
+    (state) => state.auth
+  );
 
-  const [resending, setResending] =
-    useState(false);
-
+  const isArabic = useIsArabic()
+  /* ================= VERIFY ================= */
   const handleVerify = async (e) => {
     e.preventDefault();
 
@@ -39,115 +44,74 @@ export default function VerificationCode() {
     try {
       setLoading(true);
 
-      // API Request هنا
-      await new Promise((r) =>
-        setTimeout(r, 1500)
-      );
+      // 🔥 TODO: replace with real API later
+      await new Promise((r) => setTimeout(r, 1000));
 
-      console.log("OTP:", otp);
-    } catch (error) {
-      console.error(error);
+      navigate("/reset-password", {
+        state: {
+          email,
+          otpCode: otp,
+        },
+      });
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  /* ================= RESEND ================= */
   const handleResend = async () => {
-    try {
-      setResending(true);
+    if (!email) return;
 
-      // resend API
+    const result = await dispatch(forgotPassword(email));
 
-      await new Promise((r) =>
-        setTimeout(r, 1400)
-      );
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setResending(false);
+    if (result.meta.requestStatus === "fulfilled") {
+      console.log("Code resent successfully");
+    } else {
+      console.log("Failed to resend code");
     }
   };
 
   return (
     <div
       dir={i18n.language === "ar" ? "rtl" : "ltr"}
-      className="
-        min-h-screen
-        flex items-center justify-center
-        bg-background
-        px-4 py-12
-      "
+      className="min-h-screen flex items-center justify-center bg-background px-4 py-12"
     >
       <div className="w-full max-w-md">
-        {/* header */}
+
+        {/* HEADER */}
         <div className="text-center mb-4">
-          <div
-            className="
-              inline-flex
-              items-center justify-center
-              w-14 h-14
-              rounded-2xl
-              bg-primary
-              shadow-lg shadow-primary/20
-             "
-          >
-            <ShieldCheck
-              className="
-                w-7 h-7
-                text-primary-foreground
-              "
-            />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/20">
+            <ShieldCheck className="w-7 h-7 text-primary-foreground" />
           </div>
 
-          <h1
-            className="
-              text-2xl
-              font-bold
-              tracking-tight
-              text-foreground
-            "
-          >
+          <h1 className="text-2xl font-bold">
             {t("verification.title")}
           </h1>
 
-          <p
-            className="
-              mt-2
-              text-sm
-              text-muted-foreground
-              leading-relaxed
-            "
-          >
+          <p className="text-sm text-muted-foreground mt-2">
             {t("verification.subtitle")}
           </p>
 
-          <p
-            className="
-              mt-2
-              text-sm
-              font-medium
-              text-foreground
-            "
-          >
+          <p className="text-sm font-medium mt-2">
             {email}
           </p>
         </div>
 
-        {/* card */}
-        <div
-          className="
-            bg-card
-            border border-border
-            rounded-2xl
-            shadow-sm
-            p-8
-          "
-        >
-          <form
-            onSubmit={handleVerify}
-            className="space-y-8"
-          >
-            {/* otp */}
+        {/* CARD */}
+        <div className="bg-card border rounded-2xl p-8 shadow-sm">
+
+          {/* OTP ERROR MESSAGE */}
+          {passwordMessage && (
+            <div className="text-sm text-center mb-3 text-primary">
+              {passwordMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleVerify} className="space-y-8">
+
+            {/* OTP */}
             <div className="flex justify-center">
               <InputOTP
                 maxLength={6}
@@ -168,121 +132,47 @@ export default function VerificationCode() {
               </InputOTP>
             </div>
 
-            {/* resend */}
+            {/* RESEND */}
             <div className="text-center">
-              <p
-                className="
-                  text-xs
-                  text-muted-foreground
-                "
-              >
-                {t("verification.didntReceive")}
-              </p>
-
               <button
                 type="button"
                 onClick={handleResend}
-                disabled={resending}
-                className="
-                  mt-1
-                  inline-flex
-                  items-center
-                  gap-2
-
-                  text-sm
-                  font-medium
-                  text-primary
-
-                  hover:underline
-
-                  disabled:opacity-60
-                  disabled:cursor-not-allowed
-                "
+                disabled={passwordLoading}
+                className="text-sm text-primary flex items-center gap-2 mx-auto"
               >
-                {resending ? (
+                {passwordLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    {t(
-                      "verification.resending"
-                    )}
-                  </>
+                    {isArabic ? "إعادة إرسال..." : "Resending..."}
+                   </>
                 ) : (
                   <>
                     <Mail className="w-4 h-4" />
-                    {t(
-                      "verification.resend"
-                    )}
+                    {isArabic ? "إعادة إرسال الرمز" : "Resend Code"}
                   </>
                 )}
               </button>
             </div>
 
-            {/* submit */}
+            {/* SUBMIT */}
             <button
               type="submit"
-              disabled={
-                loading || otp.length < 6
-              }
-              className="
-                w-full
-
-                flex items-center justify-center
-                gap-2
-
-                rounded-lg
-
-                bg-primary
-                text-primary-foreground
-
-                py-2.5 px-4
-
-                text-sm
-                font-medium
-
-                transition-all
-                duration-150
-
-                hover:opacity-90
-                active:scale-[0.98]
-
-                disabled:opacity-60
-                disabled:cursor-not-allowed
-
-                shadow-sm
-                shadow-primary/20
-              "
+              disabled={loading || otp.length < 6}
+              className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {t("verification.verifying")}
-                </>
-              ) : (
-                t("verification.verify")
-              )}
+              {loading ? (isArabic ? "جاري التحقق..." : "Verifying...") : (isArabic ? "تحقق" : "Verify")}
             </button>
           </form>
         </div>
 
-        {/* back */}
+        {/* BACK */}
         <div className="flex justify-center mt-6">
           <Link
             to="/login"
-            className="
-              flex items-center
-              gap-1.5
-
-              text-sm
-              text-muted-foreground
-
-              hover:text-foreground
-
-              transition-colors
-            "
+            className="flex items-center gap-2 text-sm text-muted-foreground"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-
-            {t("verification.back")}
+            <ArrowLeft className="w-4 h-4" />
+             {isArabic ? "العودة إلى تسجيل الدخول" : "Back to Login"}
           </Link>
         </div>
       </div>

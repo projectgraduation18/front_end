@@ -1,4 +1,3 @@
-// src/store/services/authService.js
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -6,102 +5,84 @@ const API_URL = "https://projectgraduation18.runasp.net/api/";
 
 const COOKIE_OPTIONS = {
   expires: 7,
-  secure: true,
+  secure: false,
   sameSite: "Strict",
   path: "/",
 };
 
+/* ================= HELPERS ================= */
+
+const saveSession = (user, token) => {
+  Cookies.set("token", token, COOKIE_OPTIONS);
+  Cookies.set("user", JSON.stringify(user), COOKIE_OPTIONS);
+};
+
+const clearSession = () => {
+  Cookies.remove("token");
+  Cookies.remove("user");
+};
+
+/* ================= SERVICE ================= */
+
 const authService = {
+  /* ================= LOGIN ================= */
   login: async (email, password) => {
-    try {
-      console.log("🌐 Calling API:", `${API_URL}Auth/login`);
+    const { data } = await axios.post(`${API_URL}Auth/login`, {
+      email,
+      password,
+    });
 
-      const response = await axios.post(`${API_URL}Auth/login`, {
-        email,
-        password,
-      });
-
-      console.log("✅ Response:", response.data);
-
-      if (response.data.token) {
-        const user = {
-          id: response.data.userId,
-          name: response.data.name,
-          email: response.data.email,
-          role: response.data.role,
-        };
-        const token = response.data.token;
-
-        Cookies.set("token", token, COOKIE_OPTIONS);
-        Cookies.set("user", JSON.stringify(user), COOKIE_OPTIONS);
-
-        return {
-          success: true,
-          data: { user, token },
-          message: "تم تسجيل الدخول بنجاح",
-        };
-      }
-
-      return {
-        success: false,
-        message: response.data.message || "فشل تسجيل الدخول",
-      };
-    } catch (error) {
-      console.error("Login error:", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || "حدث خطأ في الاتصال بالخادم",
-      };
+    if (!data?.token) {
+      return { success: false, message: "Invalid credentials" };
     }
+
+    const user = {
+      id: data.userId,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+    };
+
+    saveSession(user, data.token);
+
+    return {
+      success: true,
+      data: { user, token: data.token },
+    };
   },
 
+  /* ================= REGISTER ================= */
   register: async (name, email, password) => {
-    try {
-      console.log("🌐 Calling API:", `${API_URL}Auth/register`);
+    const { data } = await axios.post(`${API_URL}Auth/register`, {
+      name,
+      email,
+      password,
+    });
 
-      const response = await axios.post(`${API_URL}Auth/register`, {
-        name,
-        email,
-        password,
-      });
-
-      console.log("✅ Response:", response.data);
-
-      if (response.data.token) {
-        const user = {
-          id: response.data.userId,
-          name: response.data.name,
-          email: response.data.email,
-          role: response.data.role,
-        };
-        const token = response.data.token;
-
-        Cookies.set("token", token, COOKIE_OPTIONS);
-        Cookies.set("user", JSON.stringify(user), COOKIE_OPTIONS);
-
-        return {
-          success: true,
-          data: { user, token },
-          message: "تم إنشاء الحساب بنجاح",
-        };
-      }
-
-      return {
-        success: false,
-        message: response.data.message || "فشل إنشاء الحساب",
-      };
-    } catch (error) {
-      console.error("Register error:", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || "حدث خطأ في الاتصال بالخادم",
-      };
+    if (!data?.token) {
+      return { success: false, message: "Register failed" };
     }
+
+    const user = {
+      id: data.userId,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+    };
+
+    saveSession(user, data.token);
+
+    return {
+      success: true,
+      data: { user, token: data.token },
+    };
   },
 
+  /* ================= LOGOUT ================= */
   logout: async () => {
+    const token = Cookies.get("token");
+
     try {
-      const token = Cookies.get("token");
       if (token) {
         await axios.post(
           `${API_URL}Auth/logout`,
@@ -110,32 +91,63 @@ const authService = {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
       }
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch (err) {
+      console.log("logout error:", err);
     } finally {
-      Cookies.remove("token", { path: "/" });
-      Cookies.remove("user", { path: "/" });
+      clearSession();
     }
+
     return { success: true };
   },
 
-  checkAuth: () => {
-    const token = Cookies.get("token");
-    const userCookie = Cookies.get("user");
+  /* ================= FORGOT PASSWORD ================= */
+  forgotPassword: async (email) => {
+    const { data } = await axios.post(
+      `${API_URL}Auth/forgot-password`,
+      { email }
+    );
 
-    if (token && userCookie) {
-      try {
-        const user = JSON.parse(userCookie);
-        return { isAuthenticated: true, token, user };
-      } catch {
-        return { isAuthenticated: false, token: null, user: null };
+    return {
+      success: true,
+      message: data?.message || "Reset email sent successfully",
+    };
+  },
+
+  /* ================= RESET PASSWORD ================= */
+  resetPassword: async (email, otpCode, newPassword) => {
+    const { data } = await axios.post(
+      `${API_URL}Auth/reset-password`,
+      {
+        email,
+        otpCode,
+        newPassword,
       }
-    }
+    );
 
-    return { isAuthenticated: false, token: null, user: null };
+    return {
+      success: true,
+      message: data?.message || "Password reset successful",
+    };
+  },
+
+  /* ================= SESSION ================= */
+  getSession: () => {
+    const token = Cookies.get("token");
+    const user = Cookies.get("user");
+
+    if (!token || !user) return null;
+
+    try {
+      return {
+        token,
+        user: JSON.parse(user),
+      };
+    } catch {
+      return null;
+    }
   },
 };
 
