@@ -29,6 +29,7 @@ import DepartmentDetails from "./pages/Admin/DepartmentDetails";
 import SubjectsPageAdmin from "./pages/Admin/subjectsPage";
 import SubjectDetails from "./pages/Admin/SubjectDetails";
 import StudentHomePage from "./pages/Student/studentHome";
+import SummeryPage from "./pages/Student/SummeryPage";
 const queryClient = new QueryClient();
 
 /* ================= ROUTES ================= */
@@ -331,6 +332,15 @@ function AppRoutes() {
             </StudentRoute>
           }
         />
+        <Route path="/summery" element={
+            <StudentRoute
+              user={user}
+              isAuthenticated={isAuthenticated}
+              authInitialized={authInitialized}
+            >
+              <SummeryPage />
+            </StudentRoute>
+          } />
       </Route>
 
       {/* ================= ADMIN ================= */}

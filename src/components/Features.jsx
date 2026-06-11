@@ -14,26 +14,29 @@ const iconMap = {
   summaries: FileText,
   exams: GraduationCap,
 };
-
-const colorMap = {
+ const colorMap = {
   blue: {
     bg: "bg-blue-500/10",
     icon: "text-blue-500",
+    dot: "bg-blue-500",
     border: "hover:border-blue-500/40",
   },
   violet: {
     bg: "bg-violet-500/10",
     icon: "text-violet-500",
+    dot: "bg-violet-500",
     border: "hover:border-violet-500/40",
   },
   emerald: {
     bg: "bg-emerald-500/10",
     icon: "text-emerald-500",
+    dot: "bg-emerald-500",
     border: "hover:border-emerald-500/40",
   },
   amber: {
     bg: "bg-amber-500/10",
     icon: "text-amber-500",
+    dot: "bg-amber-500",
     border: "hover:border-amber-500/40",
   },
 };
@@ -45,7 +48,7 @@ export default function Features() {
     { key: "ai_chat", color: "blue" },
     { key: "lectures", color: "violet" },
     { key: "summaries", color: "emerald" },
-    { key: "exams", color: "amber" },
+    // { key: "exams", color: "amber" },
   ];
 
   return (
@@ -68,7 +71,7 @@ export default function Features() {
         </motion.div>
 
         {/* Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6">
           {features.map((f, i) => {
             const data = t(`features.items.${f.key}`, {
               returnObjects: true,
@@ -110,7 +113,7 @@ export default function Features() {
                       key={idx}
                       className="flex items-center gap-2 text-xs text-muted-foreground"
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${c.icon}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
                       {h}
                     </li>
                   ))}

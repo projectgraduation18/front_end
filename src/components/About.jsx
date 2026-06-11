@@ -66,9 +66,8 @@ export default function About() {
             <div className="grid grid-cols-2 gap-4 pt-2">
               {[
                 { key: "founded", value: "2003" },
-                { key: "departments", value: "4+" },
-                // { key: "programs", value: "12+" },
-                { key: "faculty", value: "500+" },
+                { key: "departments", value: "3" },
+                { key: "faculty", value: "+30" },
               ].map((item) => (
                 <div
                   key={item.key}

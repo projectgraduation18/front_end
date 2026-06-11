@@ -17,7 +17,6 @@ export default function Navbar() {
 
   const { t } = useTranslation();
 
-  // جلب حالة المصادقة من Redux Store
   const { isAuthenticated, user, isLoading } = useSelector(
     (state) => state.auth,
   );
@@ -97,19 +96,10 @@ export default function Navbar() {
             </button>
             <LanguageDropdown />
 
-            {/* عرض الأزرار حسب حالة المصادقة */}
-            {isLoading ? (
-              // عرض loading spinner أثناء التحقق
-              <div className="w-20 h-9 animate-pulse bg-muted rounded-lg" />
+             {isLoading ? (
+               <div className="w-20 h-9 animate-pulse bg-muted rounded-lg" />
             ) : isAuthenticated ? (
-              // المستخدم مسجل دخول - عرض اسمه وزر Logout
-              <div className="flex items-center gap-3">
-                {/* <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50">
-                  <User className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">
-                    {user?.name || user?.email?.split("@")[0] || "User"}
-                  </span>
-                </div> */}
+               <div className="flex items-center gap-3">
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 text-sm font-medium rounded-lg bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white transition-all duration-200 flex items-center gap-2"

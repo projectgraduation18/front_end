@@ -1,94 +1,52 @@
 export const students = [
-  {
-    id: 1,
-    name: "Ahmed Mohamed",
-    email: "ahmed@gmail.com",
-    level: "Level 1",
-  },
-
-  {
-    id: 2,
-    name: "Ali Hassan",
-    email: "ali@gmail.com",
-    level: "Level 2",
-  },
-];
-
-export const levels = [
-  {
-    id: 1,
-    name: "Level 1",
-
-    subjects: [
-      "Math",
-      "Physics",
-      "Programming",
-    ],
-  },
-
-  {
-    id: 2,
-    name: "Level 2",
-
-    subjects: [
-      "Database",
-      "Algorithms",
-      "OOP",
-    ],
-  },
-
-  {
-    id: 3,
-    name: "Level 3",
-
-    departments: [
-      {
-        id: "cs",
-        name: "Computer Science",
-
-        lectures: [
-          {
-            id: 1,
-            title: "AI Lecture 1",
-          },
-
-          {
-            id: 2,
-            title: "Networks Lecture",
-          },
-        ],
-      },
-
-      {
-        id: "it",
-        name: "Information Technology",
-
-        lectures: [
-          {
-            id: 1,
-            title: "Cloud Computing",
-          },
-        ],
-      },
-    ],
-  },
-
-  {
-    id: 4,
-    name: "Level 4",
-
-    departments: [
-      {
-        id: "cs",
-        name: "Computer Science",
-
-        lectures: [
-          {
-            id: 1,
-            title: "Machine Learning",
-          },
-        ],
-      },
-    ],
-  },
+  { id: 1, name: "Ahmed Mohamed", email: "ahmed.mohamed@gmail.com" },
+  { id: 2, name: "Ali Hassan", email: "ali.hassan@gmail.com" },
+  { id: 3, name: "Omar Khaled", email: "omar.khaled@gmail.com" },
+  { id: 4, name: "Mahmoud Adel", email: "mahmoud.adel@gmail.com" },
+  { id: 5, name: "Youssef Tarek", email: "youssef.tarek@gmail.com" },
+  { id: 6, name: "Mostafa Amr", email: "mostafa.amr@gmail.com" },
+  { id: 7, name: "Karim Essam", email: "karim.essam@gmail.com" },
+  { id: 8, name: "Mohamed Samy", email: "mohamed.samy@gmail.com" },
+  { id: 9, name: "Ibrahim Ashraf", email: "ibrahim.ashraf@gmail.com" },
+  { id: 10, name: "Hossam Nabil", email: "hossam.nabil@gmail.com" },
+  { id: 11, name: "Ayman Salah", email: "ayman.salah@gmail.com" },
+  { id: 12, name: "Islam Gamal", email: "islam.gamal@gmail.com" },
+  { id: 13, name: "Amr Fathy", email: "amr.fathy@gmail.com" },
+  { id: 14, name: "Mina Nader", email: "mina.nader@gmail.com" },
+  { id: 15, name: "Bishoy Atef", email: "bishoy.atef@gmail.com" },
+  { id: 16, name: "John Mark", email: "john.mark@gmail.com" },
+  { id: 17, name: "Peter Youssef", email: "peter.youssef@gmail.com" },
+  { id: 18, name: "Shady Emad", email: "shady.emad@gmail.com" },
+  { id: 19, name: "Fady Sameh", email: "fady.sameh@gmail.com" },
+  { id: 20, name: "George Mina", email: "george.mina@gmail.com" },
+  { id: 21, name: "Khaled Saad", email: "khaled.saad@gmail.com" },
+  { id: 22, name: "Wael Magdy", email: "wael.magdy@gmail.com" },
+  { id: 23, name: "Tamer Hosny", email: "tamer.hosny@gmail.com" },
+  { id: 24, name: "Sherif Adel", email: "sherif.adel@gmail.com" },
+  { id: 25, name: "Nader Ashraf", email: "nader.ashraf@gmail.com" },
+  { id: 26, name: "Hamdy Salah", email: "hamdy.salah@gmail.com" },
+  { id: 27, name: "Reda Mahmoud", email: "reda.mahmoud@gmail.com" },
+  { id: 28, name: "Tarek Anwar", email: "tarek.anwar@gmail.com" },
+  { id: 29, name: "Alaa Mohamed", email: "alaa.mohamed@gmail.com" },
+  { id: 30, name: "Sayed Hassan", email: "sayed.hassan@gmail.com" },
+  { id: 31, name: "Walid Fawzy", email: "walid.fawzy@gmail.com" },
+  { id: 32, name: "Adel Farouk", email: "adel.farouk@gmail.com" },
+  { id: 33, name: "Samir Gaber", email: "samir.gaber@gmail.com" },
+  { id: 34, name: "Nasser Mahmoud", email: "nasser.mahmoud@gmail.com" },
+  { id: 35, name: "Hazem Ali", email: "hazem.ali@gmail.com" },
+  { id: 36, name: "Ashraf Kamal", email: "ashraf.kamal@gmail.com" },
+  { id: 37, name: "Hany Fathy", email: "hany.fathy@gmail.com" },
+  { id: 38, name: "Ramy Samir", email: "ramy.samir@gmail.com" },
+  { id: 39, name: "Maged Nabil", email: "maged.nabil@gmail.com" },
+  { id: 40, name: "Ehab Atef", email: "ehab.atef@gmail.com" },
+  { id: 41, name: "Bassam Yasser", email: "bassam.yasser@gmail.com" },
+  { id: 42, name: "Yasser Mahmoud", email: "yasser.mahmoud@gmail.com" },
+  { id: 43, name: "Osama Adel", email: "osama.adel@gmail.com" },
+  { id: 44, name: "Anas Mohamed", email: "anas.mohamed@gmail.com" },
+  { id: 45, name: "Bassem Tarek", email: "bassem.tarek@gmail.com" },
+  { id: 46, name: "Saif Ahmed", email: "saif.ahmed@gmail.com" },
+  { id: 47, name: "Marwan Khaled", email: "marwan.khaled@gmail.com" },
+  { id: 48, name: "Ziad Mostafa", email: "ziad.mostafa@gmail.com" },
+  { id: 49, name: "Abdelrahman Essam", email: "abdelrahman.essam@gmail.com" },
+  { id: 50, name: "Moaaz Hassan", email: "moaaz.hassan@gmail.com" },
 ];

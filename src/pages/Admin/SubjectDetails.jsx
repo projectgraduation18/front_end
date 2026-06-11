@@ -125,7 +125,7 @@ const SubjectDetails = () => {
             min="1"
             max="40"
             onChange={(e) => setLectureNumber(e.target.value)}
-            className="w-full mb-3 p-2 border rounded"
+            className="w-full mb-3   p-2 border rounded"
           />
 
           {/* DROPZONE */}

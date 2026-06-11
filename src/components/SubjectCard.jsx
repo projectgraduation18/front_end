@@ -2,11 +2,25 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSubjectMaterials } from "../redux/slices/materialSlice";
 import { useIsArabic } from "../lib/utils";
+import { useNavigate } from "react-router-dom";
+import { sendSummeryToStore } from "../redux/services/summeryService";
+ 
 const SubjectCard = ({ subject, index }) => {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const isArabic = useIsArabic();
   const dispatch = useDispatch();
+
+ const navigate = useNavigate();
+
+const handleSend = (text) => {
+  console.log("SENDING:", text);
+
+  sendSummeryToStore(dispatch, text);
+  sessionStorage.setItem("currentSummery", text);
+  navigate("/summery");
+}; 
+ 
 
   const { materialsBySubjectId, loading } = useSelector(
     (state) => state.materials
@@ -90,13 +104,13 @@ const SubjectCard = ({ subject, index }) => {
         <div className="border-t p-4 bg-gray-50 dark:bg-gray-950">
 
           {loading && materials.length === 0 ? (
-            <p className="text-gray-500">Loading materials...</p>
+            <p className="text-gray-500">{isArabic ? "جاري التحميل..." : "Loading materials..."}</p>
           ) : (
 
             <div className="space-y-2">
 
               {materials.length === 0 ? (
-                <p className="text-gray-500">No materials</p>
+                <p className="text-gray-500">{isArabic ? "لا توجد مواد" : "No materials available"}</p>
               ) : (
                 materials.map((m) => (
                   <div
@@ -104,10 +118,10 @@ const SubjectCard = ({ subject, index }) => {
                     className="p-3 bg-white dark:bg-gray-900 rounded-lg shadow-sm flex items-center justify-between"
                   >
                     <span>
-                      📄 {m.fileName}
+                      {isArabic ? "المحاضرة" : "Lecture"} {m.lectureNumber}  
                     </span>
-
-                    <a
+                    <div className="flex gap-2">
+                       <a
                       href={m.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -115,6 +129,16 @@ const SubjectCard = ({ subject, index }) => {
                     >
                       {isArabic ? "مشاهدة" : "View"}
                     </a>
+
+                    
+                     <button
+                        onClick={() => handleSend(m.summaryText)} // أو m.summaryText
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm"
+                      >
+                        {isArabic ? "تلخيص" : "Summary"}
+                      </button>
+                    </div>
+                    
                   </div>
                 ))
               )}

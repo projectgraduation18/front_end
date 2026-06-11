@@ -2,8 +2,10 @@
 import { Link } from "react-router-dom";
 import { ShieldAlert, Home, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { useIsArabic } from "../lib/utils";
 
 export default function UnauthorizedPage() {
+  const isArabic = useIsArabic();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -17,12 +19,14 @@ export default function UnauthorizedPage() {
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">غير مصرح</h1>
-        <p className="text-gray-600 mb-2">
-          عذراً، ليس لديك الصلاحية للوصول إلى هذه الصفحة
-        </p>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2"> {isArabic ? "غير مصرح" : "Unauthorized"}  </h1>
+        <pageYOffset className="text-gray-600 mb-2">
+          {isArabic
+            ? "عذراً، ليس لديك الصلاحية للوصول إلى هذه الصفحة"
+            : "Sorry, you are not authorized to access this page."}
+        </pageYOffset>
         <p className="text-sm text-gray-500 mb-8">
-          هذه الصفحة متاحة فقط للطلاب
+          {isArabic ? " هذه الصفحة متاحة فقط للطلاب" : "This page is only accessible to students."}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -31,14 +35,14 @@ export default function UnauthorizedPage() {
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:opacity-90 transition"
           >
             <Home className="w-4 h-4" />
-            العودة للرئيسية
-          </Link>
+            {isArabic ? "الصفحة الرئيسية" : "Go Home"}
+           </Link>
           <button
             onClick={() => window.history.back()}
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-border rounded-lg hover:bg-muted transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            العودة للخلف
+            {isArabic ? "العودة للخلف" : "Go Back"}
           </button>
         </div>
       </div>

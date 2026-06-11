@@ -44,7 +44,7 @@ export default function StudentHomePage() {
             </h3>
           </div>
           <p className="text-2xl font-bold mt-2">
-            {levels?.length || 0}
+            {levels?.length || 4}
           </p>
         </div>
 
